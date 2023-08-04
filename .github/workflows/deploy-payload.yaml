@@ -48,7 +48,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
-          script: rm .env && echo SERVER_URL=https://dashboard.${{vars.DOMAIN}} >> .env
+          script: echo SERVER_URL=https://dashboard.${{vars.DOMAIN}} > .env
 
       - name: launch docker containers
         uses: appleboy/ssh-action@v0.1.7

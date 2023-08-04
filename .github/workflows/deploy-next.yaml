@@ -39,6 +39,14 @@ jobs:
           remote_user: ${{ secrets.USER }}
           remote_key: ${{ secrets.KEY }}
 
+      - name: write env variables
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: echo SERVER_URL=https://dashboard.${{vars.DOMAIN}} > .env
+
       - name: launch docker containers
         uses: appleboy/ssh-action@v0.1.7
         with:
