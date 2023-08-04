@@ -4,7 +4,7 @@ import path from "path";
 import Users from "./collections/Users";
 
 export default buildConfig({
-  serverURL: `https://dashboard.alexrussell.io`,
+  serverURL: process.env.SERVER_URL,
   admin: {
     user: Users.slug,
   },
