@@ -1,0 +1,135 @@
+name: setup instance
+
+on:
+  workflow_dispatch:
+
+jobs:
+  install-docker:
+    runs-on: ubuntu-latest
+    name: setup server
+
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: copy docker installation script
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: scripts
+          remote_path: /home/${{ secrets.USER }}/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: copy certbot docker compose file
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: docker-compose-le.yaml
+          remote_path: /home/${{ secrets.USER }}/docker-compose-le.yaml
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: install docker & docker compose
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: chmod 755 ./scripts/* && ./scripts/install-docker-remote.sh
+
+      - name: deploy production compose
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: ./docker-compose.prod.yaml
+          remote_path: /home/${{ secrets.USER }}/docker-compose.yaml
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: install and build payload
+        working-directory: payload-app
+        run: npm i && npm run build
+
+      - name: deploy payload folder with rsync
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: payload-app
+          remote_path: /home/${{ secrets.USER }}/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: install and build next
+        working-directory: next-app
+        run: npm i && npm run build
+
+      - name: deploy next folder with rsync
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: next-app
+          remote_path: /home/${{ secrets.USER }}/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: generate initial nginx conf
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: ./scripts/nginx-setup-config.sh ${{ vars.DOMAIN }} ${{ vars.EMAIL }}
+
+      - name: launch docker containers
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: docker compose up -d
+
+      - name: generate certs
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: ./scripts/run-letsencrypt.sh ${{ vars.DOMAIN }} ${{ vars.EMAIL }}
+
+      - name: bring containers down
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: docker compose down
+
+      - name: generate production nginx config
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: rm nginx.conf && ./scripts/nginx-main-config.sh ${{ vars.DOMAIN }}
+
+      - name: launch docker containers
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: docker compose up -d
+
+      - name: add crontab
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: ./scripts/add-cron.sh ${{ vars.DOMAIN }} ${{ vars.EMAIL }}

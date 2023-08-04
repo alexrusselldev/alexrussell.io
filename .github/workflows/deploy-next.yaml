@@ -1,0 +1,48 @@
+name: deploy next
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - next-app/**
+
+jobs:
+  deploy-next:
+    runs-on: ubuntu-latest
+    name: build and deploy next
+
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: install and build next
+        working-directory: next-app
+        run: npm i && npm run build
+
+      - name: bring containers down
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: docker compose down
+
+      - name: deploy next folder with rsync
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete
+          path: next-app
+          remote_path: /home/${{ secrets.USER }}/
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_key: ${{ secrets.KEY }}
+
+      - name: launch docker containers
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: docker compose up -d
