@@ -2,6 +2,9 @@ import { GlobalConfig } from "payload/types";
 
 const Settings: GlobalConfig = {
   slug: "site-settings",
+  access: {
+    read: () => true,
+  },
   fields: [
     {
       type: "tabs",
