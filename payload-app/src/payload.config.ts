@@ -5,6 +5,9 @@ import Users from "./collections/Users";
 import { s3Adapter } from "@payloadcms/plugin-cloud-storage/s3";
 import { cloudStorage } from "@payloadcms/plugin-cloud-storage";
 import Media from "./collections/Media";
+import Pages from "./collections/Pages";
+import Posts from "./collections/Posts";
+import Settings from "./globals/Settings";
 
 const adapter = s3Adapter({
   config: {
@@ -22,12 +25,8 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [
-    Users,
-    Media,
-    // Add Collections here
-    // Examples,
-  ],
+  globals: [Settings],
+  collections: [Users, Media, Pages, Posts],
   typescript: {
     outputFile: path.resolve(__dirname, "payload-types.ts"),
   },
