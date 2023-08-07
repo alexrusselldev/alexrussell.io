@@ -8,9 +8,6 @@ services:
     command:
       - --storageEngine=wiredTiger
     volumes:
-      - data:/data/db
+      - ./payload-app/local-data:/data/db
     logging:
       driver: none
-
-volumes:
-  data:

@@ -35,6 +35,7 @@ export default buildConfig({
   },
   plugins: [
     cloudStorage({
+      enabled: process.env.MODE === "production",
       collections: {
         media: {
           adapter,
