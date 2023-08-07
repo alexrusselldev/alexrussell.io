@@ -51,6 +51,7 @@ jobs:
             echo S3_REGION=${{ secrets.S3_REGION }} >> .env
             echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }} >> .env
             echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
+            echo S3_ENDPOINT=${{ vars.S3_ENDPOINT }} >> .env
 
       - name: launch docker containers
         uses: appleboy/ssh-action@v0.1.7
