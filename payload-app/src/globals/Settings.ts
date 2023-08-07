@@ -11,7 +11,7 @@ const Settings: GlobalConfig = {
           description: "General settings for the site",
           fields: [
             {
-              name: "title",
+              name: "siteTitle",
               label: "Site Title",
               type: "text",
             },
@@ -45,7 +45,7 @@ const Settings: GlobalConfig = {
                       relationTo: "media",
                     },
                     {
-                      name: "title",
+                      name: "headerTitle",
                       type: "text",
                     },
                   ],
