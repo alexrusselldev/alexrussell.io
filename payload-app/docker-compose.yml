@@ -18,6 +18,7 @@ services:
       PORT: 3000
       NODE_ENV: development
       PAYLOAD_SECRET: TESTING
+      SERVER_URL: http://localhost:3000
 
   mongo:
     image: mongo:latest
