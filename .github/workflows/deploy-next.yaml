@@ -52,6 +52,7 @@ jobs:
             echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }} >> .env
             echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
             echo S3_ENDPOINT=${{ vars.S3_ENDPOINT }} >> .env
+            echo PAYLOAD_PORT=3001 >> .env
             echo MODE=production >> .env
 
       - name: launch docker containers
