@@ -8,6 +8,8 @@ import Media from "./collections/Media";
 import Pages from "./collections/Pages";
 import Posts from "./collections/Posts";
 import Settings from "./globals/Settings";
+import Vehicles from "./collections/Vehicles";
+import Journeys from "./collections/Journeys";
 
 const adapter = s3Adapter({
   config: {
@@ -26,7 +28,7 @@ export default buildConfig({
     user: Users.slug,
   },
   globals: [Settings],
-  collections: [Users, Media, Pages, Posts],
+  collections: [Users, Media, Pages, Posts, Vehicles, Journeys],
   typescript: {
     outputFile: path.resolve(__dirname, "payload-types.ts"),
   },
